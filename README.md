@@ -1,5 +1,5 @@
 # dev-stack
-Docker compose stack for microservices
+[Capitan](https://github.com/byrnedo/capitan) stack for microservices
 
 - Consul - Service Discovery
     Dns on 172.17.42.1 (docker bridge)
