@@ -1,4 +1,5 @@
 #!/bin/bash
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 PREFIX="dev"
 
@@ -12,8 +13,8 @@ consul publish 8400:8400
 consul publish 127.0.0.1:8500:8500
 consul publish 172.17.42.1:8500:8500 
 consul publish 172.17.42.1:53:53/udp
-consul hook after.run ./wait_for_port.sh 8500
-consul hook after.start ./wait_for_port.sh 8500
+consul hook after.run $DIR/wait_for_port.sh 8500
+consul hook after.start $DIR/wait_for_port.sh 8500
 
 # Service Discovery - Registrator
 
