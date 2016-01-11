@@ -24,29 +24,29 @@ function populateXNodes(){
     cat <<EOF
 
 # Service Discovery - Consul
-consul-$node image progrium/consul
-consul-$node command -advertise $node_ip -join $consul_ip
-consul-$node hostname ${PREFIX}_consul_$node
-consul-$node publish ${node_ip}:8301:8301
-consul-$node publish ${node_ip}:8301:8301/udp
-consul-$node publish ${node_ip}:8302:8302
-consul-$node publish ${node_ip}:8302:8302/udp
-consul-$node publish ${node_ip}:8400:8400
-consul-$node publish ${node_ip}:8500:8500
-consul-$node publish ${dockerBridgeIp}:53:53
-consul-$node publish ${dockerBridgeIp}:53:53/udp
-consul-$node env constraint:node==$node
-consul-$node hook after.run $DIR/../wait_for_net_port.sh 8500 30 sendify
-consul-$node hook after.start $DIR/../wait_for_net_port.sh 8500 30 sendify
-consul-$node net sendify
+$node-consul image progrium/consul
+$node-consul command -advertise $node_ip -join $consul_ip
+$node-consul hostname ${PREFIX}_consul_$node
+$node-consul publish ${node_ip}:8301:8301
+$node-consul publish ${node_ip}:8301:8301/udp
+$node-consul publish ${node_ip}:8302:8302
+$node-consul publish ${node_ip}:8302:8302/udp
+$node-consul publish ${node_ip}:8400:8400
+$node-consul publish ${node_ip}:8500:8500
+$node-consul publish ${dockerBridgeIp}:53:53
+$node-consul publish ${dockerBridgeIp}:53:53/udp
+$node-consul env constraint:node==$node
+$node-consul hook after.run $DIR/../wait_for_net_port.sh 8500 30 sendify
+$node-consul hook after.start $DIR/../wait_for_net_port.sh 8500 30 sendify
+$node-consul net sendify
 
 # Service Discovery - Registrator
 
-registrator-$node image gliderlabs/registrator:master
-registrator-$node command -retry-interval 1000 -retry-attempts 5 -internal consul://${consul_ip}:8500
-registrator-$node hostname ${PREFIX}_registrator_$node
-registrator-$node env constraint:node==$node
-registrator-$node volume /var/run/docker.sock:/tmp/docker.sock
+$node-registrator image gliderlabs/registrator:master
+$node-registrator command -retry-interval 1000 -retry-attempts 5 -internal consul://${consul_ip}:8500
+$node-registrator hostname ${PREFIX}_registrator_$node
+$node-registrator env constraint:node==$node
+$node-registrator volume /var/run/docker.sock:/tmp/docker.sock
 
 EOF
     done

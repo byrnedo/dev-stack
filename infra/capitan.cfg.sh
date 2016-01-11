@@ -32,7 +32,7 @@ mongo net $NET
 nats image nats:latest
 nats hostname ${PREFIX}_nats
 nats publish 4222
-nats hook after.run $DIR/../wait_for_consul_port.sh nats-4222 4222 30 $NET
-nats hook after.start $DIR/../wait_for_consul_port.sh nats-4222 4222 30 $NET
+nats hook after.run $DIR/../wait_for_consul_port.sh nats-4222.service.consul 4222 30 $NET
+nats hook after.start $DIR/../wait_for_consul_port.sh nats-4222.service.consul 4222 30 $NET
 nats net $NET
 EOF
