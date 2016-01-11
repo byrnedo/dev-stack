@@ -1,12 +1,7 @@
 #!/bin/bash
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 NET=sendify
-function addNet(){
-    if [ -n "$NET" ]
-    then
-        echo $1 net $NET
-    fi
-}
+
 
 PREFIX=dev
 cat <<EOF
@@ -18,7 +13,7 @@ redis hostname ${PREFIX}_redis
 redis publish 6379
 redis hook after.run $DIR/wait_for_port.sh 6379 30 $NET
 redis hook after.start $DIR/wait_for_port.sh 6379 30 $NET
-$(addNet redis)
+redis net $NET
 
 #
 # General mongodb container
@@ -29,7 +24,7 @@ mongo hostname ${PREFIX}_mongo
 mongo publish 27017
 mongo hook after.run $DIR/wait_for_port.sh 27017 30 $NET
 mongo hook after.start $DIR/wait_for_port.sh 27017 30 $NET
-$(addNet mongo)
+mongo net $NET
 
 #
 # General nats container
@@ -39,5 +34,5 @@ nats hostname ${PREFIX}_nats
 nats publish 4222
 nats hook after.run $DIR/wait_for_port.sh 4222 30 $NET
 nats hook after.start $DIR/wait_for_port.sh 4222 30 $NET
-$(addNet nats)
+nats net $NET
 EOF
