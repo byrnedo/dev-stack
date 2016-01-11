@@ -3,18 +3,38 @@
 CONTAINER="$CAPITAN_CONTAINER_NAME"
 PORT="$1"
 MAX_ATTEMPTS="${2:-10}"
+NET="$3"
+if [ -n "$NET" ]
+then
+    NET="--net $NET"
+fi
+
+function getHost(){
+        echo $CONTAINER
+}
+
+function checkPort(){
+    local host=$1
+    local port=$2
+    
+    docker run --rm --entrypoint /usr/bin/nc $NET joffotron/docker-net-tools -w 1 $host $port
+}
 
 
-HOST=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' $CONTAINER)
-
+HOST=$(getHost)
 count=1
 echo "$(date) - trying to connect to ${HOST}:${PORT}"
-while ! exec 6<>/dev/tcp/${HOST}/${PORT} 2>/dev/null; do
+while true;  do
+    checkPort $HOST $PORT
+        
+    if [ $? -eq 0 ]
+    then
+        break
+    fi
+    echo -n "."
     ##echo "$(date) - attempt $count failed while trying to connect to ${HOST}:${PORT}"
     if [[ $count -ge $MAX_ATTEMPTS ]]
     then
-        exec 6>&-
-        exec 6<&-
         echo "$(date) - failed to connect after $count attempts, exitting.."
         exit 1
     fi
@@ -25,8 +45,6 @@ while ! exec 6<>/dev/tcp/${HOST}/${PORT} 2>/dev/null; do
 done
 
 echo "$(date) - attempt $count successfully connected"
-exec 6>&-
-exec 6<&-
 exit 0
 
 
