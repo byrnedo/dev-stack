@@ -1,9 +1,9 @@
 #!/bin/bash
 
-CONTAINER="$CAPITAN_CONTAINER_NAME"
-PORT="$1"
-MAX_ATTEMPTS="${2:-10}"
-NET="$3"
+CONTAINER="$1"
+PORT="$2"
+MAX_ATTEMPTS="${3:-10}"
+NET="$4"
 if [ -n "$NET" ]
 then
     NET="--net $NET"

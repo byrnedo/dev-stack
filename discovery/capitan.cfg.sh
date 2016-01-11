@@ -25,20 +25,25 @@ function populateXNodes(){
 
 # Service Discovery - Consul
 consul-$node image progrium/consul
-consul-$node command -server -advertise $node_ip -join $consul_ip
+consul-$node command -advertise $node_ip -join $consul_ip
 consul-$node hostname ${PREFIX}_consul_$node
-consul-$node publish 8400:8400
-consul-$node publish ${dockerBridgeIp}:8500:8500 
+consul-$node publish ${node_ip}:8301:8301
+consul-$node publish ${node_ip}:8301:8301/udp
+consul-$node publish ${node_ip}:8302:8302
+consul-$node publish ${node_ip}:8302:8302/udp
+consul-$node publish ${node_ip}:8400:8400
+consul-$node publish ${node_ip}:8500:8500
+consul-$node publish ${dockerBridgeIp}:53:53
 consul-$node publish ${dockerBridgeIp}:53:53/udp
 consul-$node env constraint:node==$node
-consul-$node hook after.run $DIR/wait_for_port.sh 8500 30 sendify
-consul-$node hook after.start $DIR/wait_for_port.sh 8500 30 sendify
+consul-$node hook after.run $DIR/../wait_for_net_port.sh 8500 30 sendify
+consul-$node hook after.start $DIR/../wait_for_net_port.sh 8500 30 sendify
 consul-$node net sendify
 
 # Service Discovery - Registrator
 
 registrator-$node image gliderlabs/registrator:master
-registrator-$node command -retry-interval 1000 -retry-attempts 5 -internal consul://127.0.0.1:8500
+registrator-$node command -retry-interval 1000 -retry-attempts 5 -internal consul://${consul_ip}:8500
 registrator-$node hostname ${PREFIX}_registrator_$node
 registrator-$node env constraint:node==$node
 registrator-$node volume /var/run/docker.sock:/tmp/docker.sock
