@@ -28,12 +28,12 @@ consul-$node image progrium/consul
 consul-$node command -server -advertise $node_ip -join $consul_ip
 consul-$node hostname ${PREFIX}_consul_$node
 consul-$node publish 8400:8400
-consul-$node publish 8500:8500 
-consul-$node publish 172.17.0.1:8500
-consul-$node publish 172.17.0.1:53:53/udp
+consul-$node publish ${dockerBridgeIp}:8500:8500 
+consul-$node publish ${dockerBridgeIp}:53:53/udp
 consul-$node env constraint:node==$node
 consul-$node hook after.run $DIR/wait_for_port.sh 8500 30 sendify
 consul-$node hook after.start $DIR/wait_for_port.sh 8500 30 sendify
+consul-$node net sendify
 
 # Service Discovery - Registrator
 
