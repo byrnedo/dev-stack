@@ -13,7 +13,7 @@ function getIfaceIP {
 
 
 function populateXNodes(){
-    local consul_ip="$(docker-machine ip swarm-node-01)"
+    local consul_ip="$(docker-machine ip swarm-consul)"
     local nodes="$*"
 
     for node in $nodes
