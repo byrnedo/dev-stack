@@ -1,55 +1,39 @@
 #!/bin/bash
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 NET="sendify"
+SCALE=2
 
-PREFIX="dev"
-
-
-function getIfaceIP {
-    local machine="$1"
-    local iface="$2"
-    docker-machine ssh "$machine" "ifconfig $iface | grep 'inet addr:' | cut -d: -f2 | awk '{ print \$1}'"
-}
-
-
-function populateXNodes(){
-    local consul_ip="$(docker-machine ip swarm-consul)"
-    local nodes="$*"
-
-    for node in $nodes
-    do
-
-    local dockerBridgeIp=$(getIfaceIP $node docker0)
-    local node_ip="$(docker-machine ip $node)"
-    cat <<EOF
+consul_ip="$(docker-machine ip swarm-consul)"
+docker_bridge_ip=172.17.0.1
+node_ip=0.0.0.0
 
 # Service Discovery - Consul
-$node-consul image progrium/consul
-$node-consul command -advertise $node_ip -join $consul_ip
-$node-consul hostname ${PREFIX}_consul_$node
-$node-consul publish ${node_ip}:8301:8301
-$node-consul publish ${node_ip}:8301:8301/udp
-$node-consul publish ${node_ip}:8302:8302
-$node-consul publish ${node_ip}:8302:8302/udp
-$node-consul publish ${node_ip}:8400:8400
-$node-consul publish ${node_ip}:8500:8500
-$node-consul publish ${dockerBridgeIp}:53:53
-$node-consul publish ${dockerBridgeIp}:53:53/udp
-$node-consul env constraint:node==$node
-$node-consul hook after.run $DIR/../wait_for_port.sh \$CAPITAN_CONTAINER_NAME 8500 30 sendify
-$node-consul hook after.start $DIR/../wait_for_port.sh \$CAPITAN_CONTAINER_NAME 8500 30 sendify
-$node-consul net sendify
+cat <<EOF
+consul-agent image progrium/consul
+consul-agent command -advertise $node_ip -join $consul_ip
+consul-agent hostname consul_agent
+consul-agent publish ${node_ip}:8301:8301
+consul-agent publish ${node_ip}:8301:8301/udp
+consul-agent publish ${node_ip}:8302:8302
+consul-agent publish ${node_ip}:8302:8302/udp
+consul-agent publish ${node_ip}:8400:8400
+consul-agent publish ${node_ip}:8500:8500
+consul-agent publish ${docker_bridge_ip}:53:53
+consul-agent publish ${docker_bridge_ip}:53:53/udp
+consul-agent env affinity:container!=~*-consul-agent_*
+consul-agent hook after.run $DIR/../wait_for_port.sh \$CAPITAN_CONTAINER_NAME 8500 30 sendify
+consul-agent hook after.start $DIR/../wait_for_port.sh \$CAPITAN_CONTAINER_NAME 8500 30 sendify
+consul-agent scale $SCALE
+consul-agent net sendify
 
 # Service Discovery - Registrator
 
-$node-registrator image gliderlabs/registrator:master
-$node-registrator command -retry-interval 1000 -retry-attempts 5 -internal consul://${consul_ip}:8500
-$node-registrator hostname ${PREFIX}_registrator_$node
-$node-registrator env constraint:node==$node
-$node-registrator volume /var/run/docker.sock:/tmp/docker.sock
+registrator image gliderlabs/registrator:master
+registrator command -retry-interval 1000 -retry-attempts 5 -internal consul://${consul_ip}:8500
+registrator hostname registrator
+registrator env affinity:container!=~*-registrator_*
+registrator volume /var/run/docker.sock:/tmp/docker.sock
+registrator scale $SCALE
 
 EOF
-    done
-}
 
-populateXNodes swarm-master swarm-node-01
