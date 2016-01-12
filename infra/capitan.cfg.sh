@@ -11,8 +11,8 @@ cat <<EOF
 redis image redis:latest
 redis hostname ${PREFIX}_redis
 redis publish 6379
-redis hook after.run $DIR/../wait_for_consul_port.sh redis.service.consul 6379 30 $NET
-redis hook after.start $DIR/../wait_for_consul_port.sh redis.service.consul 6379 30 $NET
+redis hook after.run $DIR/../wait_for_port.sh redis.service.consul 6379 30 $NET
+redis hook after.start $DIR/../wait_for_port.sh redis.service.consul 6379 30 $NET
 redis net $NET
 
 #
@@ -22,8 +22,8 @@ mongo image mongo:latest
 mongo command mongod --smallfiles
 mongo hostname ${PREFIX}_mongo
 mongo publish 27017
-mongo hook after.run $DIR/../wait_for_consul_port.sh mongo.service.consul 27017 30 $NET
-mongo hook after.start $DIR/../wait_for_consul_port.sh mongo.service.consul 27017 30 $NET
+mongo hook after.run $DIR/../wait_for_port.sh mongo.service.consul 27017 30 $NET
+mongo hook after.start $DIR/../wait_for_port.sh mongo.service.consul 27017 30 $NET
 mongo net $NET
 
 #
@@ -32,7 +32,7 @@ mongo net $NET
 nats image nats:latest
 nats hostname ${PREFIX}_nats
 nats publish 4222
-nats hook after.run $DIR/../wait_for_consul_port.sh nats-4222.service.consul 4222 30 $NET
-nats hook after.start $DIR/../wait_for_consul_port.sh nats-4222.service.consul 4222 30 $NET
+nats hook after.run $DIR/../wait_for_port.sh nats-4222.service.consul 4222 30 $NET
+nats hook after.start $DIR/../wait_for_port.sh nats-4222.service.consul 4222 30 $NET
 nats net $NET
 EOF

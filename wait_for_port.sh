@@ -1,27 +1,33 @@
 #!/bin/bash
 
-CONTAINER="$CAPITAN_CONTAINER_NAME"
-PORT="$1"
-MAX_ATTEMPTS="${2:-10}"
-NET="$3"
-if [ -n "$NET" ]
-then
-    NET="--net $NET"
-fi
+function interpolateArg(){
+    local toTrim="$1"
 
-function getHost(){
-    echo $CONTAINER
+    if [[ ${toTrim:0:1} == "$" ]]; then
+        local trimmed="${1:1}"
+        local interpd="${!trimmed}"
+        echo "$interpd"
+    else
+        echo "$toTrim"
+    fi
 }
 
 function checkPort(){
-    local host=$1
-    local port=$2
+    local hostname=$1
+    local portnum=$2
     
-    docker run --rm --entrypoint /usr/bin/nc $NET joffotron/docker-net-tools -w 1 $host $port
+    docker run --rm --entrypoint /usr/bin/nc $NET joffotron/docker-net-tools -z "$hostname" "$portnum"
 }
 
+HOST=$(interpolateArg "$1")
+PORT=$(interpolateArg "$2")
+MAX_ATTEMPTS="${3:-10}"
+NET=$(interpolateArg "$4")
 
-HOST=$(getHost)
+if [ -n "$NET" ]; then
+    NET="--net $NET"
+fi
+
 count=1
 echo "$(date) - trying to connect to ${HOST}:${PORT}"
 while true;  do
@@ -35,6 +41,7 @@ while true;  do
     ##echo "$(date) - attempt $count failed while trying to connect to ${HOST}:${PORT}"
     if [[ $count -ge $MAX_ATTEMPTS ]]
     then
+        echo
         echo "$(date) - failed to connect after $count attempts, exitting.."
         exit 1
     fi
@@ -44,6 +51,7 @@ while true;  do
     sleep 1
 done
 
+echo
 echo "$(date) - attempt $count successfully connected"
 exit 0
 

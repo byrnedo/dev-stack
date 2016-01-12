@@ -36,8 +36,8 @@ $node-consul publish ${node_ip}:8500:8500
 $node-consul publish ${dockerBridgeIp}:53:53
 $node-consul publish ${dockerBridgeIp}:53:53/udp
 $node-consul env constraint:node==$node
-$node-consul hook after.run $DIR/../wait_for_net_port.sh 8500 30 sendify
-$node-consul hook after.start $DIR/../wait_for_net_port.sh 8500 30 sendify
+$node-consul hook after.run $DIR/../wait_for_port.sh \$CAPITAN_CONTAINER_NAME 8500 30 sendify
+$node-consul hook after.start $DIR/../wait_for_port.sh \$CAPITAN_CONTAINER_NAME 8500 30 sendify
 $node-consul net sendify
 
 # Service Discovery - Registrator
