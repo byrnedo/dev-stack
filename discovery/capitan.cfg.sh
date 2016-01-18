@@ -1,7 +1,7 @@
 #!/bin/bash
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-[ -n "$NET" ] && net_arg="--net $NET"
+[ -n "$NET" ] && net_arg="net $NET"
 
 docker_bridge_ip=172.17.0.1
 node_ip=0.0.0.0
