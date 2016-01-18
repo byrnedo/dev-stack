@@ -1,0 +1,7 @@
+#!/bin/bash
+
+export NET=""
+export SWARM_NODES=1
+export CONSUL_IP=172.17.0.1
+export ENVIRONMENT=dev
+

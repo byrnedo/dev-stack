@@ -1,0 +1,6 @@
+#!/bin/bash
+
+export NET="sendify"
+export SWARM_NODES=2
+export CONSUL_IP="$(docker-machine ip swarm-consul)"
+export ENVIRONMENT=prod
