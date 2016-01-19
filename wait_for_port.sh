@@ -18,7 +18,7 @@ if [ -n "$NET" ]; then
 fi
 
 count=1
-echo "$(date) - trying to connect to ${HOST}:${PORT}"
+echo -e "\e[32m$(date) - trying to connect to ${HOST}:${PORT}\e[39m"
 while true;  do
     checkPort $HOST $PORT
         
@@ -30,8 +30,8 @@ while true;  do
     ##echo "$(date) - attempt $count failed while trying to connect to ${HOST}:${PORT}"
     if [[ $count -ge $MAX_ATTEMPTS ]]
     then
-        echo
-        echo "$(date) - failed to connect after $count attempts, exitting.."
+        echo >&2
+        echo -e "\e[31m$(date) - failed to connect after $count attempts, exitting..\e[39m" >&2
         exit 1
     fi
 
@@ -41,7 +41,7 @@ while true;  do
 done
 
 echo
-echo "$(date) - attempt $count successfully connected"
+echo -e "\e[32m$(date) - attempt $count successfully connected\e[39m"
 exit 0
 
 
