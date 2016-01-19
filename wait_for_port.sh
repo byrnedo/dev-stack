@@ -1,16 +1,5 @@
 #!/bin/bash
 
-function interpolateArg(){
-    local toTrim="$1"
-
-    if [[ ${toTrim:0:1} == "$" ]]; then
-        local trimmed="${1:1}"
-        local interpd="${!trimmed}"
-        echo "$interpd"
-    else
-        echo "$toTrim"
-    fi
-}
 
 function checkPort(){
     local hostname=$1
@@ -19,10 +8,10 @@ function checkPort(){
     docker run --rm --entrypoint /usr/bin/nc $NET joffotron/docker-net-tools -z "$hostname" "$portnum"
 }
 
-HOST=$(interpolateArg "$1")
-PORT=$(interpolateArg "$2")
+HOST="$1"
+PORT="$2"
 MAX_ATTEMPTS="${3:-10}"
-NET=$(interpolateArg "$4")
+NET="$4"
 
 if [ -n "$NET" ]; then
     NET="--net $NET"
